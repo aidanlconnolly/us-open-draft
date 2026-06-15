@@ -65,9 +65,13 @@ Once `isComplete(state)`, `App.tsx` swaps `DraftRoom` for the header + three tab
 
 ### Data
 
-`src/data/players.ts` is the field source of truth: ~50 `Player` objects (id, country, American
-`odds`, SG stats, `last5`, drive distance, up&down %, `usOpen2025` = 2025 Oakmont finish). Exports
-`PLAYERS`, `PLAYERS_BY_ID`, `avgPosition()`. **No `DEFAULT_PICKS`** — teams come from the draft.
+`src/data/players.ts` is the field source of truth: the full confirmed **149-player** 2026 field as
+`Player` objects (id, country, American `odds`, SG stats, `last5`, drive distance, up&down %,
+`usOpen2025` = 2025 Oakmont finish). The ~46 contenders have real stats/odds; the long tail has real
+names/countries + approximate odds but **placeholder stats** (SG `0`, empty `last5`, `usOpen2025`
+`"—"`) since public per-player SG data doesn't cover the whole field — all are still draftable.
+Exports `PLAYERS`, `PLAYERS_BY_ID`, `avgPosition()` (handles empty `last5` → 70). **No
+`DEFAULT_PICKS`** — teams come from the draft.
 `src/types.ts` adds `DraftPick` / `DraftState` alongside the reused `Player` / `Picks` types.
 
 ### Header image
