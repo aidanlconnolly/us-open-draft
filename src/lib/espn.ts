@@ -19,10 +19,19 @@ export async function fetchLeaderboard(): Promise<LeaderboardResult> {
   const comp = event?.competitions?.[0];
   const competitors: any[] = comp?.competitors ?? [];
 
+  // Group by total score so tied players share one rank. The rank for a score
+  // is the lowest ESPN `order` among everyone on that score; tied players all
+  // get that same number (e.g. two players at -5 → both "T2", next is "4").
   const scoreCounts = new Map<string, number>();
+  const scoreRank = new Map<string, number>();
   for (const c of competitors) {
     const s = c?.score ?? "";
     scoreCounts.set(s, (scoreCounts.get(s) ?? 0) + 1);
+    const order: number = c?.order ?? 0;
+    if (order) {
+      const prev = scoreRank.get(s);
+      if (prev === undefined || order < prev) scoreRank.set(s, order);
+    }
   }
 
   const rows: LeaderboardRow[] = competitors.map((c) => {
@@ -34,7 +43,8 @@ export async function fetchLeaderboard(): Promise<LeaderboardResult> {
     const holesPlayed: number = Array.isArray(ls0?.linescores) ? ls0.linescores.length : 0;
     const order: number = c?.order ?? 0;
     const tied = (scoreCounts.get(totalScore) ?? 0) > 1;
-    const position = order ? `${tied ? "T" : ""}${order}` : "";
+    const rank = scoreRank.get(totalScore) ?? order;
+    const position = order ? `${tied ? "T" : ""}${rank}` : "";
     return {
       name: a.displayName ?? a.shortName ?? "",
       position,
